@@ -7,6 +7,8 @@ contract MinterNft is ERC721{
 
     mapping(uint256 => string) public tokenURIs;
 
+    mapping(uint256 => uint256) public tokenToMintId;
+
     address public owner;
 
     uint256 public nextId;
@@ -30,20 +32,21 @@ contract MinterNft is ERC721{
         owner = _newOwner;
     }
 
-    function mint(address _to)
+    function mint(address _to, uint256 _mintId)
         public
         onlyOwner
     {
         _safeMint(_to, nextId);
+        tokenToMintId[nextId] = _mintId;
         nextId++;
     }
 
-    function mintAndSetURI(address _to, string memory _uri)
+    function mintAndSetURI(address _to, uint256 _mintId, string memory _uri)
         external
         onlyOwner
     {
         setTokenURI(nextId, _uri);
-        mint(_to);
+        mint(_to, _mintId);
     }
 
     function setTokenURI(uint256 _tokenId, string memory _uri)
