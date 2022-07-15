@@ -1,4 +1,4 @@
-//SPDX License Identifier : GPLv3
+// SPDX-License-Identifier: GPLv3
 pragma solidity >=0.8.0;
 
 import "./ERC721.sol";
@@ -7,7 +7,7 @@ contract MinterNft is ERC721{
 
     mapping(uint256 => string) public tokenURIs;
 
-    mapping(uint256 => uint256) public tokenToMintId;
+    mapping(uint256 => uint256) public mintIdToTokenId;
 
     address public owner;
 
@@ -37,7 +37,7 @@ contract MinterNft is ERC721{
         onlyOwner
     {
         _safeMint(_to, nextId);
-        tokenToMintId[nextId] = _mintId;
+        mintIdToTokenId[_mintId] = nextId;
         nextId++;
     }
 
