@@ -3,6 +3,8 @@ pragma solidity >=0.8.0;
 
 import "./ERC721.sol";
 import "./Ownable.sol";
+import "hardhat/console.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 contract NftFactory is Ownable{
 
@@ -19,7 +21,37 @@ contract NftFactory is Ownable{
         nftBase = _newBase;
     }
 
-    function makePool()
+    function deployCollectionBetter()
+        external
+    {
+        Clones.cloneDeterministic(
+            nftBase,
+            keccak256(
+                abi.encodePacked(
+                    msg.sender,
+                    collectionCount++
+                )
+            )
+        );
+    }
+
+    function predictAddress()
+        external
+        view
+        returns (address)
+    {
+        return Clones.predictDeterministicAddress(
+            nftBase,
+            keccak256(
+                abi.encodePacked(
+                    msg.sender,
+                    collectionCount
+                )
+            )
+        );
+    }
+
+    function deployCollection()
         external
         returns (address)
     {
@@ -27,6 +59,7 @@ contract NftFactory is Ownable{
 
         bytes32 salt = keccak256(
             abi.encodePacked(
+                msg.sender,
                 collectionCount++
             )
         );
@@ -61,6 +94,8 @@ contract NftFactory is Ownable{
                 salt
             )
         }
+
+        console.log(nftCollection);
 
         return nftCollection;
     }

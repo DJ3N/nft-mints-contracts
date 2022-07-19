@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import "./ERC721.sol";
 import "./Ownable.sol";
 
-contract MinterNft is ERC721, Ownable{
+contract MinterNftV2 is ERC721, Ownable{
 
     mapping(uint256 => string) public tokenURIs;
 
@@ -17,6 +17,7 @@ contract MinterNft is ERC721, Ownable{
     constructor()
         ERC721("NFT BASE", "NFTB")
     {
+        nextId = 69;
     }
 
     function initialize(string memory _name, string memory _symbol)
