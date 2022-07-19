@@ -37,7 +37,7 @@ describe("Deploy Clones", function () {
 
     console.log(addr1);
 
-    await Factory.deployCollectionBetter();
+    await Factory.deployCollection();
 
     let addr2 = await Factory.predictAddress();
 

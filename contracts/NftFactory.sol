@@ -21,7 +21,7 @@ contract NftFactory is Ownable{
         nftBase = _newBase;
     }
 
-    function deployCollectionBetter()
+    function deployCollection()
         external
     {
         Clones.cloneDeterministic(
@@ -50,61 +50,4 @@ contract NftFactory is Ownable{
             )
         );
     }
-
-    function deployCollection()
-        external
-        returns (address)
-    {
-        address nftCollection;
-
-        bytes32 salt = keccak256(
-            abi.encodePacked(
-                msg.sender,
-                collectionCount++
-            )
-        );
-
-        bytes20 targetBytes = bytes20(
-            nftBase
-        );
-
-        assembly {
-
-            let clone := mload(0x40)
-
-            mstore(
-                clone,
-                0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000
-            )
-
-            mstore(
-                add(clone, 0x14),
-                targetBytes
-            )
-
-            mstore(
-                add(clone, 0x28),
-                0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000
-            )
-
-            nftCollection := create2(
-                0,
-                clone,
-                0x37,
-                salt
-            )
-        }
-
-        console.log(nftCollection);
-
-        return nftCollection;
-    }
 }
-
-
-
-
-
-
-
-
