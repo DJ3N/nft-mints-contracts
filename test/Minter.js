@@ -2,10 +2,11 @@ const { expect } = require('chai')
 const { ethers, upgrades } = require('hardhat')
 
 describe("Deploy Clones", function () {
-  let Factory, FactoryDeployer, CollectionNft
+  let Factory, FactoryDeployer, CollectionNft, owner
+
 
   beforeEach(async function () {
-    const [owner] = await ethers.getSigners()
+    [owner] = await ethers.getSigners()
 
     FactoryDeployer = await ethers.getContractFactory('NftFactory')
 
@@ -69,6 +70,15 @@ describe("Deploy Clones", function () {
 
     console.log(nextIdOld, "NIDO")
 
+    console.log(owner.address, "oner")
+
+    await justDeployed.mint(owner.address, 1234);
+
+    const tokenId = await justDeployed.mintIdToTokenId(1234);
+
+    console.log(tokenId, "TID")
+
+    await justDeployed["safeTransferFrom(address,address,uint256)"](owner.address, "0x4e2d97538aa64b44326cf2e9065b65C3805863F3", 1)
 
 
     //console.log("Here")
