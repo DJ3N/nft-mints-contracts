@@ -47,7 +47,23 @@ contract MinterNftV2 is ERC721, Ownable{
         owner = _newOwner;
     }
 
-    function mint(address _to, uint256 _mintId)
+    function mint(address _to)
+        public
+        onlyOwner
+    {
+        _safeMint(_to, nextId);
+        nextId++;
+    }
+
+    function mintURI(address _to, string memory _uri)
+        external
+        onlyOwner
+    {
+        setTokenURI(nextId, _uri);
+        mint(_to);
+    }
+
+    function mintCallback(address _to, uint256 _mintId)
         public
         onlyOwner
     {
@@ -56,12 +72,12 @@ contract MinterNftV2 is ERC721, Ownable{
         nextId++;
     }
 
-    function mintAndSetURI(address _to, uint256 _mintId, string memory _uri)
+    function mintCallbackURI(address _to, uint256 _mintId, string memory _uri)
         external
         onlyOwner
     {
         setTokenURI(nextId, _uri);
-        mint(_to, _mintId);
+        mintCallback(_to, _mintId);
     }
 
     function setTokenURI(uint256 _tokenId, string memory _uri)

@@ -38,7 +38,7 @@ describe("Deploy Clones", function () {
 
     console.log(addr1, "addr1");
 
-    await Factory.deployCollection("Gr8 nft","BONG");
+    await Factory.deployCollection("Gr8 nft","BONG", owner.address);
 
     let addr2 = await Factory.predictAddress(1);
 
@@ -56,7 +56,7 @@ describe("Deploy Clones", function () {
 
     console.log(addr2, "addr2")
 
-    await Factory.deployCollection("Gr8 nft","BONG");
+    await Factory.deployCollection("Gr8 nft","BONG", owner.address);
 
     const justDeployedOld = await CollectionNft.attach(
         addr2
@@ -72,7 +72,7 @@ describe("Deploy Clones", function () {
 
     console.log(owner.address, "oner")
 
-    await justDeployed.mint(owner.address, 1234);
+    await justDeployed.mintCallback(owner.address, 1234);
 
     const tokenId = await justDeployed.mintIdToTokenId(1234);
 
@@ -81,10 +81,7 @@ describe("Deploy Clones", function () {
     await justDeployed["safeTransferFrom(address,address,uint256)"](owner.address, "0x4e2d97538aa64b44326cf2e9065b65C3805863F3", 1)
 
 
+
     //console.log("Here")
-
-
-
-
   })
 });

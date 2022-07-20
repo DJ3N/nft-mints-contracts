@@ -24,7 +24,8 @@ contract NftFactory is Ownable{
 
     function deployCollection(
         string memory _name,
-        string memory _symbol
+        string memory _symbol,
+        address _createFor
     )
         external
     {
@@ -37,7 +38,7 @@ contract NftFactory is Ownable{
                 )
             )
         );
-        IInitializable(collection).initialize(_name, _symbol, msg.sender);
+        IInitializable(collection).initialize(_name, _symbol, _createFor);
     }
 
     function predictAddress(
