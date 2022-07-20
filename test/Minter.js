@@ -37,7 +37,7 @@ describe("Deploy Clones", function () {
 
     console.log(addr1);
 
-    await Factory.deployCollection();
+    await Factory.deployCollection("Gr8 nft","BONG");
 
     let addr2 = await Factory.predictAddress();
 
@@ -55,7 +55,7 @@ describe("Deploy Clones", function () {
 
     console.log(addr2, "addr2")
 
-    await Factory.deployCollection();
+    await Factory.deployCollection("Gr8 nft","BONG");
 
     const justDeployedOld = await CollectionNft.attach(
         addr2
