@@ -3,6 +3,7 @@ pragma solidity >=0.8.0;
 
 import "./ERC721.sol";
 import "./Ownable.sol";
+import "./interfaces/IInitializable.sol";
 import "hardhat/console.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
@@ -21,10 +22,13 @@ contract NftFactory is Ownable{
         nftBase = _newBase;
     }
 
-    function deployCollection()
+    function deployCollection(
+        string memory _name,
+        string memory _symbol
+    )
         external
     {
-        Clones.cloneDeterministic(
+        address collection = Clones.cloneDeterministic(
             nftBase,
             keccak256(
                 abi.encodePacked(
@@ -33,6 +37,7 @@ contract NftFactory is Ownable{
                 )
             )
         );
+        IInitializable(collection).initialize(_name, _symbol, msg.sender);
     }
 
     function predictAddress()

@@ -17,17 +17,26 @@ contract MinterNftV2 is ERC721, Ownable{
     constructor()
         ERC721("NFT BASE", "NFTB")
     {
-        nextId = 69;
+        //Because initialized is not constant or immutable, its value will not be transfered when cloning
+        //Lock down the base contract on deployment just so nobody can highjack it to mint their own things (Even though it wouldnt technically matter)
+        initialized = true;
     }
 
-    function initialize(string memory _name, string memory _symbol)
+    function initialize(
+        string memory _name,
+        string memory _symbol,
+        address _owner
+    )
         external
     {
+        //Only allow initializing once rather than specifically permissioning the factory
+        //Factory creates then calls initialize in the same transaction with no other calls, so nothing can get in before this on a contract
+        //cloned from factory
         require(!initialized, "ALREADY INITIALIZED");
         initialized = true;
         name = _name;
         symbol = _symbol;
-        owner = msg.sender;
+        owner = _owner;
         nextId = 1;
     }
 
