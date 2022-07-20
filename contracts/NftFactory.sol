@@ -40,7 +40,9 @@ contract NftFactory is Ownable{
         IInitializable(collection).initialize(_name, _symbol, msg.sender);
     }
 
-    function predictAddress()
+    function predictAddress(
+        uint256 _countForUser
+    )
         external
         view
         returns (address)
@@ -50,7 +52,7 @@ contract NftFactory is Ownable{
             keccak256(
                 abi.encodePacked(
                     msg.sender,
-                    collectionCount
+                    _countForUser
                 )
             )
         );

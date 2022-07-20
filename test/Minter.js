@@ -34,13 +34,13 @@ describe("Deploy Clones", function () {
 
   it('Make Simple Nft Colletion', async function () {
 
-    let addr1 = await Factory.predictAddress();
+    let addr1 = await Factory.predictAddress(0);
 
-    console.log(addr1);
+    console.log(addr1, "addr1");
 
     await Factory.deployCollection("Gr8 nft","BONG");
 
-    let addr2 = await Factory.predictAddress();
+    let addr2 = await Factory.predictAddress(1);
 
     const justDeployed = await CollectionNft.attach(
         addr1
