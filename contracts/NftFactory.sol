@@ -9,9 +9,9 @@ import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 contract NftFactory is Ownable{
 
-    address nftBase;
+    address public nftBase;
 
-    uint256 collectionCount;
+    uint256 public collectionCount;
 
     event CollectionCreated(address indexed deployer, address collection);
 
