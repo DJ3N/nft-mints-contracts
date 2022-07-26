@@ -13,6 +13,8 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
 
     bool initialized;
 
+    event Mint(address indexed minter, address collection);
+
     constructor()
         ERC721("NFT BASE", "NFTB")
     {
@@ -77,13 +79,6 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
     {
         setTokenURI(nextId, _uri);
         mintCallback(_to, _mintId);
-    }
-
-    function setTokenURI(uint256 _tokenId, string memory _uri)
-        public
-        onlyOwner
-    {
-        tokenURIs[_tokenId] = _uri;
     }
 
     function tokenURI(uint256 _tokenId)
