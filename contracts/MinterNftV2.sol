@@ -7,15 +7,14 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
 
     mapping(uint256 => string) public tokenURIs;
 
-    mapping(uint256 => uint256) public mintIdToTokenId;
-
     uint256 public nextId;
 
     uint256 public maxSupply;
 
     bool initialized;
 
-    event Mint(address indexed minter, address collection);
+    event Mint(address indexed minter, uint256 tokenID);
+    event CallbackMint(uint256 indexed mintID, uint256 indexed tokenID);
 
     modifier checkMaxSupply() {
         require(
@@ -67,6 +66,7 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
     {
         tokenURIs[nextId] = _uri;
         _safeMint(_to, nextId);
+        emit Mint(msg.sender, nextId);
         nextId++;
     }
 
@@ -77,7 +77,7 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
     {
         tokenURIs[nextId] = _uri;
         _safeMint(_to, nextId);
-        mintIdToTokenId[_mintId] = nextId;
+        emit CallbackMint(_mintId, nextId);
         nextId++;
     }
 
