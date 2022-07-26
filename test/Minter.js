@@ -26,7 +26,7 @@ describe("Deploy Clones", function () {
 
     let addr1 = await Factory.predictAddress(0);
 
-    await Factory.deployCollection("Best NFTs", "BNFT", owner.address);
+    await Factory.deployCollection("Best NFTs", "BNFT", owner.address, 10);
 
     const justDeployed = await CollectionNft.attach(
         addr1
@@ -36,7 +36,7 @@ describe("Deploy Clones", function () {
 
     const name = await justDeployed.name();
 
-    await Factory.deployCollection("Gr8 nft","BONG", owner.address);
+    await Factory.deployCollection("Gr8 nft","BONG", owner.address, 20);
 
     let addr2 = await Factory.predictAddress(1);
 
@@ -48,7 +48,7 @@ describe("Deploy Clones", function () {
 
     const nextIdOld = await justDeployedOld.nextId();
 
-    await justDeployed.mintCallback(owner.address, 1234);
+    await justDeployed.mintCallbackURI(owner.address, 1234, "HI");
 
     const tokenId = await justDeployed.mintIdToTokenId(1234);
 
