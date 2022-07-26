@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPLv3
 pragma solidity >=0.8.0;
 
-import "./ERC721.sol";
-import "./Ownable.sol";
+//import "./ERC721.sol";
+import "./ERC721Enumerable.sol";
 
-contract MinterNftV2 is ERC721, Ownable{
+contract MinterNftV2 is ERC721Enumerable, Ownable{
 
     mapping(uint256 => string) public tokenURIs;
 
@@ -23,8 +23,8 @@ contract MinterNftV2 is ERC721, Ownable{
     }
 
     function initialize(
-        string memory _name,
-        string memory _symbol,
+        string memory _initializedName,
+        string memory _initializedSymbol,
         address _owner
     )
         external
@@ -34,8 +34,8 @@ contract MinterNftV2 is ERC721, Ownable{
         //cloned from factory
         require(!initialized, "ALREADY INITIALIZED");
         initialized = true;
-        name = _name;
-        symbol = _symbol;
+        _name = _initializedName;
+        _symbol = _initializedSymbol;
         owner = _owner;
         nextId = 1;
     }
