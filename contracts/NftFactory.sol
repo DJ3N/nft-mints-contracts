@@ -27,7 +27,8 @@ contract NftFactory is Ownable{
     function deployCollection(
         string memory _name,
         string memory _symbol,
-        address _createFor
+        address _createFor,
+        uint256 _maxSupply
     )
         external
         returns (address)
@@ -41,7 +42,12 @@ contract NftFactory is Ownable{
                 )
             )
         );
-        IInitializable(collection).initialize(_name, _symbol, _createFor);
+        IInitializable(collection).initialize(
+            _name,
+            _symbol,
+            _createFor,
+            _maxSupply
+        );
 
         emit CollectionCreated(msg.sender, collection);
 

@@ -6,7 +6,8 @@ interface IInitializable {
     function initialize(
         string memory _name,
         string memory _symbol,
-        address _owner
+        address _owner,
+        uint256 _maxSupply
     )
     external;
 }

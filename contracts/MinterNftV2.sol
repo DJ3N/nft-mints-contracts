@@ -11,6 +11,8 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
 
     uint256 public nextId;
 
+    uint256 public maxSupply;
+
     bool initialized;
 
     event Mint(address indexed minter, address collection);
@@ -26,7 +28,8 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
     function initialize(
         string memory _initializedName,
         string memory _initializedSymbol,
-        address _owner
+        address _owner,
+        uint256 _maxSupply
     )
         external
     {
@@ -38,6 +41,7 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
         _name = _initializedName;
         _symbol = _initializedSymbol;
         owner = _owner;
+        maxSupply = _maxSupply;
         nextId = 1;
     }
 
@@ -52,7 +56,11 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
         external
         onlyOwner
     {
-        setTokenURI(nextId, _uri);
+        require(
+            nextId <= maxSupply,
+            "MAX SUPPlY REACHED"
+        );
+        tokenURIs[nextId] = _uri;
         _safeMint(_to, nextId);
         nextId++;
     }
@@ -61,7 +69,11 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
         external
         onlyOwner
     {
-        setTokenURI(nextId, _uri);
+        require(
+            nextId <= maxSupply,
+            "MAX SUPPlY REACHED"
+        );
+        tokenURIs[nextId] = _uri;
         _safeMint(_to, nextId);
         mintIdToTokenId[_mintId] = nextId;
         nextId++;
