@@ -17,6 +17,14 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
 
     event Mint(address indexed minter, address collection);
 
+    modifier checkMaxSupply() {
+        require(
+            nextId <= maxSupply,
+            "MAX SUPPlY REACHED"
+        );
+        _;
+    }
+
     constructor()
         ERC721("NFT BASE", "NFTB")
     {
@@ -55,11 +63,8 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
     function mintURI(address _to, string memory _uri)
         external
         onlyOwner
+        checkMaxSupply
     {
-        require(
-            nextId <= maxSupply,
-            "MAX SUPPlY REACHED"
-        );
         tokenURIs[nextId] = _uri;
         _safeMint(_to, nextId);
         nextId++;
@@ -68,11 +73,8 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
     function mintCallbackURI(address _to, uint256 _mintId, string memory _uri)
         external
         onlyOwner
+        checkMaxSupply
     {
-        require(
-            nextId <= maxSupply,
-            "MAX SUPPlY REACHED"
-        );
         tokenURIs[nextId] = _uri;
         _safeMint(_to, nextId);
         mintIdToTokenId[_mintId] = nextId;
