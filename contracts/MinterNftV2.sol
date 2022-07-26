@@ -57,21 +57,14 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
         nextId++;
     }
 
-    function mintCallback(address _to, uint256 _mintId)
-        public
-        onlyOwner
-    {
-        _safeMint(_to, nextId);
-        mintIdToTokenId[_mintId] = nextId;
-        nextId++;
-    }
-
     function mintCallbackURI(address _to, uint256 _mintId, string memory _uri)
         external
         onlyOwner
     {
         setTokenURI(nextId, _uri);
-        mintCallback(_to, _mintId);
+        _safeMint(_to, nextId);
+        mintIdToTokenId[_mintId] = nextId;
+        nextId++;
     }
 
     function tokenURI(uint256 _tokenId)
