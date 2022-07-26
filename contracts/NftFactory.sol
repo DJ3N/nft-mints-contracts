@@ -13,6 +13,8 @@ contract NftFactory is Ownable{
 
     uint256 collectionCount;
 
+    event CollectionCreated(address indexed deployer, address collection);
+
     function updateBase(
         address _newBase
     )
@@ -28,6 +30,7 @@ contract NftFactory is Ownable{
         address _createFor
     )
         external
+        returns (address)
     {
         address collection = Clones.cloneDeterministic(
             nftBase,
@@ -39,6 +42,10 @@ contract NftFactory is Ownable{
             )
         );
         IInitializable(collection).initialize(_name, _symbol, _createFor);
+
+        emit CollectionCreated(msg.sender, collection);
+
+        return collection;
     }
 
     function predictAddress(

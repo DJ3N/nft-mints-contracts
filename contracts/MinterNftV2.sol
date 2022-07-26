@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPLv3
 pragma solidity >=0.8.0;
 
-//import "./ERC721.sol";
 import "./ERC721Enumerable.sol";
 
 contract MinterNftV2 is ERC721Enumerable, Ownable{
