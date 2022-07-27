@@ -11,7 +11,20 @@ contract SimpleMarketPlace is ReentrancyGuard{
         uint256 buyoutPrice;
     }
 
-    mapping(uint256 => Listing) public Listings;
+    mapping(bytes32 => Listing) public Listings;
+
+    function generateListingID(
+        address _collection,
+        uint256 _id
+    )
+        public
+        pure
+        returns (bytes32)
+    {
+        return keccak256(
+            abi.encodePacked(_collection, _id)
+        );
+    }
 
     function listNFT(
         address _collection,
@@ -27,10 +40,10 @@ contract SimpleMarketPlace is ReentrancyGuard{
             address(this),
             _id
         );
-        uint256 listingID = keccak256(_collection, _id);
+        bytes32 listingID = generateListingID(_collection, _id);
         Listings[listingID] = Listing({
             tokenOwner : _listFor,
-            butoutPrice : _onePrice
+            buyoutPrice : _onePrice
         });
     }
 
@@ -41,7 +54,10 @@ contract SimpleMarketPlace is ReentrancyGuard{
         external
         nonReentrant
     {
-
+        require(
+            msg.sender == Listings[generateListingID(_collection, _id)].tokenOwner,
+            "NOT LISTING OWNER"
+        );
     }
 
     function changePrice(
