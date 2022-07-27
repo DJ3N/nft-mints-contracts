@@ -13,6 +13,18 @@ contract SimpleMarketPlace is ReentrancyGuard{
 
     mapping(bytes32 => Listing) public Listings;
 
+    modifier onlyListingOwner(
+        address _collection,
+        uint256 _id
+    )
+    {
+        require(
+            msg.sender == Listings[generateListingID(_collection, _id)].tokenOwner,
+            "NOT LISTING OWNER"
+        );
+        _;
+    }
+
     function generateListingID(
         address _collection,
         uint256 _id
@@ -53,11 +65,10 @@ contract SimpleMarketPlace is ReentrancyGuard{
     )
         external
         nonReentrant
+        onlyListingOwner(_collection, _id)
     {
-        require(
-            msg.sender == Listings[generateListingID(_collection, _id)].tokenOwner,
-            "NOT LISTING OWNER"
-        );
+
+
     }
 
     function changePrice(
@@ -67,6 +78,7 @@ contract SimpleMarketPlace is ReentrancyGuard{
     )
         external
         nonReentrant
+        onlyListingOwner(_collection, _id)
     {
 
     }
