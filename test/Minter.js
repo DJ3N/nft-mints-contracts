@@ -51,7 +51,17 @@ describe("Deploy Clones", function () {
     await justDeployed.mintCallbackURI(owner.address, 1234, "HI");
 
     await justDeployed["safeTransferFrom(address,address,uint256)"](owner.address, "0x4e2d97538aa64b44326cf2e9065b65C3805863F3", 1)
+  })
 
+  it('Only Owner can create new nfts in collection', async function () {
+
+  })
+
+  it('Collection prevents minting once cap is reached', async function () {
+
+  })
+
+  it('Bulk mint correctly mints tokens with specified uris', async function () {
 
   })
 });
