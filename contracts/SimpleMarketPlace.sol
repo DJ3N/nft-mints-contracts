@@ -47,6 +47,8 @@ contract SimpleMarketPlace is ReentrancyGuard{
         external
         nonReentrant
     {
+        //We use transferFrom here instead of safetransferFrom because we do not want this contract to accept nft transfers outside this function.
+        //Therefore, we should use transferFrom here, so that any safeTransferFroms to this contract revert properly because we do not implement onERC721Received
         IERC721(_collection).transferFrom(
             msg.sender,
             address(this),
@@ -67,8 +69,13 @@ contract SimpleMarketPlace is ReentrancyGuard{
         nonReentrant
         onlyListingOwner(_collection, _id)
     {
-
-
+        delete Listings[generateListingID(_collection, _id)];
+        //Use safeTransferFrom here to make sure that receiving contract expects erc721 transfers
+        IERC721(_collection).safeTransferFrom(
+            msg.sender,
+            address(this),
+            _id
+        );
     }
 
     function changePrice(
@@ -77,10 +84,9 @@ contract SimpleMarketPlace is ReentrancyGuard{
         uint256 _newPrice
     )
         external
-        nonReentrant
         onlyListingOwner(_collection, _id)
     {
-
+        Listings[generateListingID(_collection, _id)].buyoutPrice = _newPrice;
     }
 
     function buyNFT(
