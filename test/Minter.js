@@ -72,7 +72,23 @@ describe("Deploy Clones", function () {
   })
 
   it('Collection prevents minting once cap is reached', async function () {
+    let addr1 = await Factory.predictAddress(0);
 
+    await Factory.deployCollection("Best NFTs", "BNFT", owner.address, 5);
+
+    const justDeployed = await CollectionNft.attach(
+        addr1
+    );
+
+    await justDeployed.mintURI(owner.address, "We like beans");
+    await justDeployed.mintURI(owner.address, "We like beans");
+    await justDeployed.mintURI(owner.address, "We like beans");
+    await justDeployed.mintURI(owner.address, "We like beans");
+    await justDeployed.mintURI(owner.address, "We like beans");
+
+    await expect(
+        justDeployed.mintURI(owner.address, "Beans are good")
+    ).to.be.revertedWith("MAX SUPPlY REACHED")
   })
 
   it('Bulk mint correctly mints tokens with specified uris', async function () {
