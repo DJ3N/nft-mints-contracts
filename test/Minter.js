@@ -2,11 +2,12 @@ const { expect } = require('chai')
 const { ethers, upgrades } = require('hardhat')
 
 describe("Deploy Clones", function () {
-  let Factory, FactoryDeployer, CollectionNft, owner
+  let Factory, FactoryDeployer, CollectionNft, owner, bob, alice
+
 
 
   beforeEach(async function () {
-    [owner] = await ethers.getSigners()
+    [owner, bob, alice] = await ethers.getSigners();
 
     FactoryDeployer = await ethers.getContractFactory('NftFactory')
 
@@ -54,6 +55,19 @@ describe("Deploy Clones", function () {
   })
 
   it('Only Owner can create new nfts in collection', async function () {
+    let addr1 = await Factory.predictAddress(0);
+
+    await Factory.deployCollection("Best NFTs", "BNFT", owner.address, 10);
+
+    const justDeployed = await CollectionNft.attach(
+        addr1
+    );
+
+    await justDeployed.mintURI(owner.address, "We like beans");
+
+    await expect(
+        justDeployed.connect(bob).mintURI(owner.address, "Beans are good")
+    ).to.be.revertedWith("NOT AUTHORIZED")
 
   })
 
