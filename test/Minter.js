@@ -90,6 +90,27 @@ describe("Deploy Clones", function () {
   })
 
   it('Bulk mint correctly mints tokens with specified uris', async function () {
+    let addr1 = await Factory.predictAddress(0);
+
+    await Factory.deployCollection("Best NFTs", "BNFT", owner.address, 5);
+
+    const justDeployed = await CollectionNft.attach(
+        addr1
+    );
+
+    await justDeployed.bulkMintURI([owner.address, owner.address], ["We like beans", "beans are good"]);
+
+    const firstTok = await justDeployed.tokenOfOwnerByIndex(owner.address, 0);
+
+    const firstUri = await justDeployed.tokenURI(firstTok);
+
+    expect(firstUri).to.equal("We like beans")
+
+    const secondTok = await justDeployed.tokenOfOwnerByIndex(owner.address, 1);
+
+    const secondUri = await justDeployed.tokenURI(secondTok);
+
+    expect(secondUri).to.equal("beans are good")
 
   })
 });
