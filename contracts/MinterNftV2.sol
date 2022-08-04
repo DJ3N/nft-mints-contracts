@@ -59,8 +59,8 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
         owner = _newOwner;
     }
 
-    function mintURI(address _to, string memory _uri)
-        external
+    function mintURI(address _to, string calldata _uri)
+        public
         onlyOwner
         checkMaxSupply
     {
@@ -70,7 +70,7 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
         nextId++;
     }
 
-    function mintCallbackURI(address _to, uint256 _mintId, string memory _uri)
+    function mintCallbackURI(address _to, uint256 _mintId, string calldata _uri)
         external
         onlyOwner
         checkMaxSupply
@@ -79,6 +79,17 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
         _safeMint(_to, nextId);
         emit CallbackMint(_mintId, nextId);
         nextId++;
+    }
+
+    function bulkMintURI(
+        address[] calldata _to,
+        string[] calldata _uris
+    )
+        external
+    {
+        for (uint256 i = 0; i < _to.length; i++){
+            mintURI(_to[i], _uris[i]);
+        }
     }
 
     function tokenURI(uint256 _tokenId)
