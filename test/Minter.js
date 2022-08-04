@@ -80,11 +80,9 @@ describe("Deploy Clones", function () {
         addr1
     );
 
-    await justDeployed.mintURI(owner.address, "We like beans");
-    await justDeployed.mintURI(owner.address, "We like beans");
-    await justDeployed.mintURI(owner.address, "We like beans");
-    await justDeployed.mintURI(owner.address, "We like beans");
-    await justDeployed.mintURI(owner.address, "We like beans");
+    for(let i = 0; i < 5; i++){
+      await justDeployed.mintURI(owner.address, "We like beans");
+    }
 
     await expect(
         justDeployed.mintURI(owner.address, "Beans are good")
