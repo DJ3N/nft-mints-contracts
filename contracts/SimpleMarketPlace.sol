@@ -94,8 +94,21 @@ contract SimpleMarketPlace is ReentrancyGuard{
         uint256 _id
     )
         external
+        payable
         nonReentrant
     {
+        require(
+            msg.value == Listings[generateListingID(_collection, _id)].buyoutPrice,
+            "Wrong Buyout Amount"
+        );
+
+        IERC721(_collection).transferFrom(
+            address(this),
+            msg.sender,
+            _id
+        );
+
+        delete Listings[generateListingID(_collection, _id)];
 
     }
 
