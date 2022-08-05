@@ -63,5 +63,10 @@ describe("Market", function () {
         1,
         { value: ethers.utils.parseEther("5") }
     )
+
+    const ownerAfter = await justDeployed.ownerOf(1);
+
+    expect(ownerAfter).to.equal(bob.address)
+
   })
 });
