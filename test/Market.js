@@ -69,4 +69,59 @@ describe("Market", function () {
     expect(ownerAfter).to.equal(bob.address)
 
   })
+
+  it('Change nft price, only by listing owner', async function () {
+
+    let addr1 = await Factory.predictAddress(0);
+
+    await Factory.deployCollection("Best NFTs", "BNFT", owner.address, 10);
+
+    const justDeployed = await CollectionNft.attach(
+        addr1
+    );
+
+    await justDeployed.bulkMintURI([owner.address, owner.address], ["We like beans", "beans are good"]);
+
+    await justDeployed.setApprovalForAll(MarketPlace.address, true)
+
+    await MarketPlace.listNFT(
+        justDeployed.address,
+        1,
+        ethers.utils.parseEther("5"),
+        owner.address
+    );
+
+    await expect(
+        MarketPlace.connect(bob).buyNFT(
+            justDeployed.address,
+            1,
+            {value: ethers.utils.parseEther("1")}
+        )
+    ).to.be.revertedWith("Wrong Buyout Amount")
+
+    await expect(
+        MarketPlace.connect(bob).changePrice(
+            justDeployed.address,
+            1,
+            ethers.utils.parseEther("1")
+        )
+    ).to.be.revertedWith("NOT LISTING OWNER");
+
+    await MarketPlace.changePrice(
+        justDeployed.address,
+        1,
+        ethers.utils.parseEther("1")
+    )
+
+    await MarketPlace.connect(bob).buyNFT(
+        justDeployed.address,
+        1,
+        {value: ethers.utils.parseEther("1")}
+    )
+
+    const ownerAfter = await justDeployed.ownerOf(1);
+
+    expect(ownerAfter).to.equal(bob.address)
+
+  });
 });
