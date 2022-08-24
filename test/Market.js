@@ -164,18 +164,16 @@ describe("Market", function () {
         )
     ).to.be.revertedWith("WRONG BUYOUT AMOUNT")
 
-    const ownerBalBefore = await ethers.provider.getBalance(owner.address);
-    
-    await MarketPlace.connect(bob).buyNFT(
+    await expect(() =>
+      MarketPlace.connect(bob).buyNFT(
         justDeployed.address,
         1,
         {value: ethers.utils.parseEther("5.25")}
+      )
+    ).to.changeEtherBalances(
+        [bob, owner],
+        [ethers.utils.parseEther("-5.25"), ethers.utils.parseEther("5")]
     );
-
-    const ownerBalAfter = await ethers.provider.getBalance(owner.address);
-
-    //Owner recieves just the 5 eth
-    expect(ownerBalAfter).to.equal(ownerBalBefore.add(ethers.utils.parseEther("5")))
 
     const ownerAfter = await justDeployed.ownerOf(1);
 
