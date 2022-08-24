@@ -15,7 +15,7 @@ describe("Market", function () {
 
     MarketPlaceDeployer = await ethers.getContractFactory('SimpleMarketPlace')
 
-    MarketPlace = await MarketPlaceDeployer.deploy()
+    MarketPlace = await MarketPlaceDeployer.deploy(ethers.utils.parseEther("1"))
 
     await Factory.deployed()
 
@@ -56,7 +56,7 @@ describe("Market", function () {
           1,
           { value: ethers.utils.parseEther("1") }
       )
-    ).to.be.revertedWith("Wrong Buyout Amount")
+    ).to.be.revertedWith("WRONG BUYOUT AMOUNT")
 
     await MarketPlace.connect(bob).buyNFT(
         justDeployed.address,
@@ -97,7 +97,7 @@ describe("Market", function () {
             1,
             {value: ethers.utils.parseEther("1")}
         )
-    ).to.be.revertedWith("Wrong Buyout Amount")
+    ).to.be.revertedWith("WRONG BUYOUT AMOUNT")
 
     await expect(
         MarketPlace.connect(bob).changePrice(
@@ -120,6 +120,73 @@ describe("Market", function () {
     )
 
     const ownerAfter = await justDeployed.ownerOf(1);
+
+    expect(ownerAfter).to.equal(bob.address)
+
+  });
+
+  it('Nft Sell with marketplace fee', async function () {
+
+    let addr1 = await Factory.predictAddress(0);
+
+    await Factory.deployCollection("Best NFTs", "BNFT", owner.address, 10);
+
+    const justDeployed = await CollectionNft.attach(
+        addr1
+    );
+
+    await justDeployed.bulkMintURI([owner.address, owner.address], ["We like beans", "beans are good"]);
+
+    await justDeployed.setApprovalForAll(MarketPlace.address, true)
+
+    await MarketPlace.setFee(ethers.utils.parseEther("1.05"))
+
+    await expect(
+        MarketPlace.setFee(ethers.utils.parseEther("0.99"))
+    ).to.be.revertedWith("NO NEGATIVE FEE")
+
+    await expect(
+        MarketPlace.setFee(ethers.utils.parseEther("1.51"))
+    ).to.be.revertedWith("MAX FEE 50%")
+
+    await MarketPlace.listNFT(
+        justDeployed.address,
+        1,
+        ethers.utils.parseEther("5"),
+        owner.address
+    );
+
+    await expect(
+        MarketPlace.connect(bob).buyNFT(
+            justDeployed.address,
+            1,
+            {value: ethers.utils.parseEther("5")}
+        )
+    ).to.be.revertedWith("WRONG BUYOUT AMOUNT")
+
+    const ownerBalBefore = await ethers.provider.getBalance(owner.address);
+    
+    await MarketPlace.connect(bob).buyNFT(
+        justDeployed.address,
+        1,
+        {value: ethers.utils.parseEther("5.25")}
+    );
+
+    const ownerBalAfter = await ethers.provider.getBalance(owner.address);
+
+    //Owner recieves just the 5 eth
+    expect(ownerBalAfter).to.equal(ownerBalBefore.add(ethers.utils.parseEther("5")))
+
+    const ownerAfter = await justDeployed.ownerOf(1);
+
+    await expect(() =>
+        MarketPlace.collectFees()
+    ).to.changeEtherBalance(owner, ethers.utils.parseEther("0.25"));
+
+    await expect(
+        MarketPlace.connect(bob).collectFees()
+    ).to.be.revertedWith("Ownable: caller is not the owner")
+
 
     expect(ownerAfter).to.equal(bob.address)
 
