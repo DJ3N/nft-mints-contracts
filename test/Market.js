@@ -185,7 +185,6 @@ describe("Market", function () {
         MarketPlace.connect(bob).collectFees()
     ).to.be.revertedWith("Ownable: caller is not the owner")
 
-
     expect(ownerAfter).to.equal(bob.address)
 
   });

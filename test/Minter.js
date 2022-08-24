@@ -67,7 +67,7 @@ describe("Deploy Clones", function () {
 
     await expect(
         justDeployed.connect(bob).mintURI(owner.address, "Beans are good")
-    ).to.be.revertedWith("NOT AUTHORIZED")
+    ).to.be.revertedWith("Ownable: caller is not the owner")
 
   })
 
