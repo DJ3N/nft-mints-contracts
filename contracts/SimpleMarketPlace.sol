@@ -125,6 +125,13 @@ contract SimpleMarketPlace is ReentrancyGuard, Ownable{
 
     }
 
+    function collectFees()
+        external
+        onlyOwner
+    {
+        payable(owner()).transfer(address(this).balance);
+    }
+
     function setFee(
         uint256 _newFee
     )
