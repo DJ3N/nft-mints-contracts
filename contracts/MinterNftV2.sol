@@ -11,6 +11,11 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
 
     uint256 public maxSupply;
 
+    //Scaled E18
+    uint256 public royaltyPercentage;
+
+    uint256 constant PRECISION = 1e18;
+
     bool initialized;
 
     event Mint(address indexed minter, uint256 tokenID);
@@ -94,6 +99,19 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
         return tokenURIs[_tokenId];
     }
 
+    function setRoyaltyPercentage(
+        uint256 _newPercentage
+    )
+        external
+        onlyOwner
+    {
+        require(
+            _newPercentage < PRECISION,
+            "ROYALTY CANNOT EXCEED 100%"
+        );
+        royaltyPercentage = _newPercentage;
+    }
+
     function royaltyInfo(
         uint256 _tokenId,
         uint256 _salePrice
@@ -102,7 +120,7 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
         uint256 royaltyAmount
     )
     {
-        
+        return (owner(), _salePrice * royaltyPercentage / PRECISION);
     }
 }
 
