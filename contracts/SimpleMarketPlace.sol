@@ -3,15 +3,21 @@ pragma solidity >=0.8.0;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract SimpleMarketPlace is ReentrancyGuard{
+contract SimpleMarketPlace is ReentrancyGuard, Ownable{
 
     struct Listing {
-        address tokenOwner;
+        address payable tokenOwner;
         uint256 buyoutPrice;
     }
 
     mapping(bytes32 => Listing) public Listings;
+
+    uint256 public fee;
+
+    uint256 constant PRECISION = 1e18;
+    uint256 constant MAXFEE = 15e17;
 
     modifier onlyListingOwner(
         address _collection,
@@ -23,6 +29,11 @@ contract SimpleMarketPlace is ReentrancyGuard{
             "NOT LISTING OWNER"
         );
         _;
+    }
+
+    constructor(uint256 _fee)
+    {
+        setFee(_fee);
     }
 
     function generateListingID(
@@ -42,7 +53,7 @@ contract SimpleMarketPlace is ReentrancyGuard{
         address _collection,
         uint256 _id,
         uint256 _onePrice,
-        address _listFor
+        address payable _listFor
     )
         external
         nonReentrant
@@ -98,8 +109,8 @@ contract SimpleMarketPlace is ReentrancyGuard{
         nonReentrant
     {
         require(
-            msg.value == Listings[generateListingID(_collection, _id)].buyoutPrice,
-            "Wrong Buyout Amount"
+            msg.value == Listings[generateListingID(_collection, _id)].buyoutPrice * fee / PRECISION,
+            "WRONG BUYOUT AMOUNT"
         );
 
         IERC721(_collection).transferFrom(
@@ -108,8 +119,28 @@ contract SimpleMarketPlace is ReentrancyGuard{
             _id
         );
 
+        Listings[generateListingID(_collection, _id)].tokenOwner.transfer(Listings[generateListingID(_collection, _id)].buyoutPrice);
+
         delete Listings[generateListingID(_collection, _id)];
 
+    }
+
+    function setFee(
+        uint256 _newFee
+    )
+        public
+        onlyOwner
+    {
+        require(
+            _newFee >= PRECISION,
+            "NO NEGATIVE FEE"
+        );
+        require(
+            _newFee <= MAXFEE,
+            "MAX FEE 50%"
+        );
+
+        fee = _newFee;
     }
 
 }
