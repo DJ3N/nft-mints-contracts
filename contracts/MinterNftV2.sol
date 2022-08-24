@@ -47,16 +47,9 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
         initialized = true;
         _name = _initializedName;
         _symbol = _initializedSymbol;
-        owner = _owner;
+        _transferOwnership(_owner);
         maxSupply = _maxSupply;
         nextId = 1;
-    }
-
-    function setOwner(address _newOwner)
-        external
-        onlyOwner
-    {
-        owner = _newOwner;
     }
 
     function mintURI(address _to, string calldata _uri)
@@ -99,6 +92,17 @@ contract MinterNftV2 is ERC721Enumerable, Ownable{
         returns (string memory)
     {
         return tokenURIs[_tokenId];
+    }
+
+    function royaltyInfo(
+        uint256 _tokenId,
+        uint256 _salePrice
+    ) external view returns (
+        address receiver,
+        uint256 royaltyAmount
+    )
+    {
+        
     }
 }
 
