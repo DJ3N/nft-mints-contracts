@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "hardhat/console.sol";
 
 contract SimpleMarketPlace is ReentrancyGuard, Ownable{
 
@@ -133,14 +134,14 @@ contract SimpleMarketPlace is ReentrancyGuard, Ownable{
 
         uint256 decimals = ONE_USD_PRICE_FEED.decimals();
 
-        uint256 listingWithFee = Listings[generateListingID(_collection, _id)].buyoutPrice * fee / PRECISION;
-
         uint256 oneBuyoutPrice = Listings[generateListingID(_collection, _id)].isUSD
-            ? listingWithFee * decimals / uint256(oneUSDPrice)
-            : listingWithFee;
+            ? Listings[generateListingID(_collection, _id)].buyoutPrice * 10**decimals / uint256(oneUSDPrice)
+            : Listings[generateListingID(_collection, _id)].buyoutPrice;
+
+        uint256 listingWithFee = oneBuyoutPrice * fee / PRECISION;
 
         require(
-            msg.value >= oneBuyoutPrice,
+            msg.value >= listingWithFee,
             "WRONG BUYOUT AMOUNT"
         );
 
@@ -150,9 +151,9 @@ contract SimpleMarketPlace is ReentrancyGuard, Ownable{
             _id
         );
 
-        Listings[generateListingID(_collection, _id)].tokenOwner.transfer(Listings[generateListingID(_collection, _id)].buyoutPrice);
+        Listings[generateListingID(_collection, _id)].tokenOwner.transfer(oneBuyoutPrice);
 
-        if(msg.value > oneBuyoutPrice) payable(msg.sender).transfer(msg.value - oneBuyoutPrice);
+        if(msg.value > listingWithFee) payable(msg.sender).transfer(msg.value - listingWithFee);
 
         delete Listings[generateListingID(_collection, _id)];
 
