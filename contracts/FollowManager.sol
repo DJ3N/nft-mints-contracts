@@ -5,13 +5,23 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract FollowManager is Ownable{
 
-    mapping (bytes32 => uint256) merkleRootsToTimestamps;
+    struct Follows{
+        bytes32 root;
+        uint256 timestamp;
+    }
+
+    uint256 uploadIndex = 0;
+    mapping (uint256 => Follows) dj3nFollows;
 
     function addFollowers(bytes32 _root)
         external
         onlyOwner
     {
-        merkleRootsToTimestamps[_root] = block.timestamp;
+        dj3nFollows[uploadIndex] = Follows({
+            root: _root,
+            timestamp: block.timestamp
+        });
+        uploadIndex++;
     }
 
     function VerifyMerkleTree(
