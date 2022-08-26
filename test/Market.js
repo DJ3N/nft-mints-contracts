@@ -18,6 +18,8 @@ describe("Market", function () {
 
     FakeChainLink = await FakeChainLinkDeployer.deploy()
 
+    await FakeChainLink.deployed()
+
     MarketPlaceDeployer = await ethers.getContractFactory('SimpleMarketPlace')
 
     MarketPlace = await MarketPlaceDeployer.deploy(ethers.utils.parseEther("1"), FakeChainLink.address)

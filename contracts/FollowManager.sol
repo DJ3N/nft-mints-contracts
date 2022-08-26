@@ -5,9 +5,7 @@ contract FollowManager{
 
 
     function VerifyFollowApproval(address _approved, address user, uint8 _v, bytes32 _r, bytes32 _s) public pure returns(bool){
-
         bytes32 payloadHash = keccak256(abi.encodePacked("User Approves party to follow and unfollow on their behalf", user, _approved));
-
         if(VerifyMessage(payloadHash, _v, _r, _s) == user) return true;
         return false;
     }
