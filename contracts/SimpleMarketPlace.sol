@@ -20,6 +20,7 @@ contract SimpleMarketPlace is ReentrancyGuard, Ownable{
 
     uint256 constant PRECISION = 1e18;
     uint256 constant MAXFEE = 15e17;
+    address constant ChainkLinkONEUSDHarmonyNetwork = 0xdCD81FbbD6c4572A69a534D8b8152c562dA8AbEF;
     AggregatorV3Interface immutable ONE_USD_PRICE_FEED;
 
     modifier onlyListingOwner(
@@ -41,7 +42,7 @@ contract SimpleMarketPlace is ReentrancyGuard, Ownable{
             inputing the exact oracle on real deployment. No gas consideration because only in constructor
         */
         ONE_USD_PRICE_FEED = _oracle == address(0x0)
-            ? AggregatorV3Interface(0xdCD81FbbD6c4572A69a534D8b8152c562dA8AbEF)
+            ? AggregatorV3Interface(ChainkLinkONEUSDHarmonyNetwork)
             : AggregatorV3Interface(_oracle);
     }
 
@@ -149,7 +150,7 @@ contract SimpleMarketPlace is ReentrancyGuard, Ownable{
             _id
         );
 
-        Listings[generateListingID(_collection, _id)].tokenOwner.transfer(oneBuyoutPrice);
+        Listings[generateListingID(_collection, _id)].tokenOwner.transfer(Listings[generateListingID(_collection, _id)].buyoutPrice);
 
         if(msg.value > oneBuyoutPrice) payable(msg.sender).transfer(msg.value - oneBuyoutPrice);
 
