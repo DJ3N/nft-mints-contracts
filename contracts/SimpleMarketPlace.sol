@@ -20,7 +20,7 @@ contract SimpleMarketPlace is ReentrancyGuard, Ownable{
 
     uint256 constant PRECISION = 1e18;
     uint256 constant MAXFEE = 15e17;
-    AggregatorV3Interface constant ONE_USD_PRICE_FEED = AggregatorV3Interface(0xdCD81FbbD6c4572A69a534D8b8152c562dA8AbEF);
+    AggregatorV3Interface immutable ONE_USD_PRICE_FEED;
 
     modifier onlyListingOwner(
         address _collection,
@@ -34,9 +34,15 @@ contract SimpleMarketPlace is ReentrancyGuard, Ownable{
         _;
     }
 
-    constructor(uint256 _fee)
+    constructor(uint256 _fee, address _oracle)
     {
         setFee(_fee);
+        /*  This control structure here allows us to use custom oracle in tests, but also not worry about
+            inputing the exact oracle on real deployment. No gas consideration because only in constructor
+        */
+        ONE_USD_PRICE_FEED = _oracle == address(0x0)
+            ? AggregatorV3Interface(0xdCD81FbbD6c4572A69a534D8b8152c562dA8AbEF)
+            : AggregatorV3Interface(_oracle);
     }
 
     function generateListingID(
@@ -131,7 +137,6 @@ contract SimpleMarketPlace is ReentrancyGuard, Ownable{
         uint256 oneBuyoutPrice = Listings[generateListingID(_collection, _id)].isUSD
             ? listingWithFee * decimals / uint256(oneUSDPrice)
             : listingWithFee;
-
 
         require(
             msg.value >= oneBuyoutPrice,
