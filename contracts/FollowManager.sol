@@ -24,6 +24,41 @@ contract FollowManager is Ownable{
         uploadIndex++;
     }
 
+    function claimFollow(
+        address _user,
+        address _creator,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s,
+        bytes32[] memory _proof,
+        uint256 _rootIndex,
+        uint256 _index
+    )
+        external
+    {
+        require(
+            VerifyFollowApproval(address(this), _user, _v, _r, _s),
+            "Dj3n is not approved to add followers for this user"
+        );
+
+        bytes32 leaf = keccak256(
+            abi.encodePacked(
+                _user,
+                _creator
+            )
+        );
+
+        require(
+            VerifyMerkleTree(
+                _proof,
+                dj3nFollows[_rootIndex].root,
+                leaf,
+                _index
+            ),
+            "Invalid Proof"
+        );
+    }
+
     function VerifyMerkleTree(
         bytes32[] memory proof,
         bytes32 root,
