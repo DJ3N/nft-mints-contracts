@@ -35,6 +35,21 @@ describe("Market", function () {
 
         packed = ethers.utils.solidityPack(
             [ "string", "address", "address" ],
+            [ "User Approves party to follow and unfollow on their behalf and more stuff", bob.address, owner.address ]
+        );
+
+        hashed = ethers.utils.solidityKeccak256(['bytes'],[packed])
+
+        sig = await bob.signMessage(ethers.utils.arrayify(hashed))
+
+        splitSig = ethers.utils.splitSignature(sig)
+
+        result = await FollowManager.VerifyFollowApproval(owner.address, bob.address, splitSig.v, splitSig.r, splitSig.s);
+
+        expect(result.toString()).to.equal("false")
+
+        packed = ethers.utils.solidityPack(
+            [ "string", "address", "address" ],
             [ "User Approves party to follow and unfollow on their behalf", bob.address, owner.address ]
         );
 
