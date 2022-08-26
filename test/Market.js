@@ -2,7 +2,8 @@ const { expect } = require('chai')
 const { ethers, upgrades } = require('hardhat')
 
 describe("Market", function () {
-  let Factory, FactoryDeployer, MarketPlaceDeployer, MarketPlace, CollectionNft, owner, bob, alice
+  let owner, bob, alice
+  let Factory, FactoryDeployer, MarketPlaceDeployer, MarketPlace, CollectionNft, FakeChainLinkDeployer, FakeChainLink
 
 
 
@@ -13,9 +14,13 @@ describe("Market", function () {
 
     Factory = await FactoryDeployer.deploy()
 
+    FakeChainLinkDeployer = await ethers.getContractFactory('FakeChainLinkAggregator')
+
+    FakeChainLink = await FakeChainLinkDeployer.deploy()
+
     MarketPlaceDeployer = await ethers.getContractFactory('SimpleMarketPlace')
 
-    MarketPlace = await MarketPlaceDeployer.deploy(ethers.utils.parseEther("1"))
+    MarketPlace = await MarketPlaceDeployer.deploy(ethers.utils.parseEther("1"), FakeChainLink.address)
 
     await Factory.deployed()
 
@@ -47,7 +52,8 @@ describe("Market", function () {
       justDeployed.address,
       1,
       ethers.utils.parseEther("5"),
-      owner.address
+      owner.address,
+      false
     );
 
     await expect(
@@ -88,7 +94,8 @@ describe("Market", function () {
         justDeployed.address,
         1,
         ethers.utils.parseEther("5"),
-        owner.address
+        owner.address,
+        false
     );
 
     await expect(
@@ -153,7 +160,8 @@ describe("Market", function () {
         justDeployed.address,
         1,
         ethers.utils.parseEther("5"),
-        owner.address
+        owner.address,
+        false
     );
 
     await expect(
@@ -188,4 +196,8 @@ describe("Market", function () {
     expect(ownerAfter).to.equal(bob.address)
 
   });
+
+  it('Nft sell in USD using chainlink price feed', async function () {
+
+  })
 });
