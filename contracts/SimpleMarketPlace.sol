@@ -4,12 +4,14 @@ pragma solidity >=0.8.0;
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 contract SimpleMarketPlace is ReentrancyGuard, Ownable{
 
     struct Listing {
         address payable tokenOwner;
         uint256 buyoutPrice;
+        bool isUSD;
     }
 
     mapping(bytes32 => Listing) public Listings;
@@ -18,6 +20,7 @@ contract SimpleMarketPlace is ReentrancyGuard, Ownable{
 
     uint256 constant PRECISION = 1e18;
     uint256 constant MAXFEE = 15e17;
+    AggregatorV3Interface constant ONE_USD_PRICE_FEED = AggregatorV3Interface(0xdCD81FbbD6c4572A69a534D8b8152c562dA8AbEF);
 
     modifier onlyListingOwner(
         address _collection,
@@ -52,8 +55,9 @@ contract SimpleMarketPlace is ReentrancyGuard, Ownable{
     function listNFT(
         address _collection,
         uint256 _id,
-        uint256 _onePrice,
-        address payable _listFor
+        uint256 _price,
+        address payable _listFor,
+        bool _isUSD
     )
         external
         nonReentrant
@@ -66,10 +70,13 @@ contract SimpleMarketPlace is ReentrancyGuard, Ownable{
             _id
         );
         bytes32 listingID = generateListingID(_collection, _id);
+
         Listings[listingID] = Listing({
             tokenOwner : _listFor,
-            buyoutPrice : _onePrice
+            buyoutPrice : _price,
+            isUSD : _isUSD
         });
+
     }
 
     function delistNFT(
@@ -108,8 +115,26 @@ contract SimpleMarketPlace is ReentrancyGuard, Ownable{
         payable
         nonReentrant
     {
+
+        (
+            /*uint80 roundID*/,
+            int oneUSDPrice,
+            /*uint startedAt*/,
+            /*uint timeStamp*/,
+            /*uint80 answeredInRound*/
+        ) = ONE_USD_PRICE_FEED.latestRoundData();
+
+        uint256 decimals = ONE_USD_PRICE_FEED.decimals();
+
+        uint256 listingWithFee = Listings[generateListingID(_collection, _id)].buyoutPrice * fee / PRECISION;
+
+        uint256 oneBuyoutPrice = Listings[generateListingID(_collection, _id)].isUSD
+            ? listingWithFee * decimals / uint256(oneUSDPrice)
+            : listingWithFee;
+
+
         require(
-            msg.value == Listings[generateListingID(_collection, _id)].buyoutPrice * fee / PRECISION,
+            msg.value >= oneBuyoutPrice,
             "WRONG BUYOUT AMOUNT"
         );
 
@@ -119,7 +144,9 @@ contract SimpleMarketPlace is ReentrancyGuard, Ownable{
             _id
         );
 
-        Listings[generateListingID(_collection, _id)].tokenOwner.transfer(Listings[generateListingID(_collection, _id)].buyoutPrice);
+        Listings[generateListingID(_collection, _id)].tokenOwner.transfer(oneBuyoutPrice);
+
+        if(msg.value > oneBuyoutPrice) payable(msg.sender).transfer(msg.value - oneBuyoutPrice);
 
         delete Listings[generateListingID(_collection, _id)];
 
