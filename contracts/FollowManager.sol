@@ -10,6 +10,17 @@ contract FollowManager is Ownable{
         uint256 timestamp;
     }
 
+    struct Follower{
+        address managerContract;
+        uint256 followedAtTimestamp;
+    }
+
+    struct CreatorData{
+        mapping (uint256 => Follower) followers;
+        uint256 lifetimeFollowers;
+        uint256 currentFollowers;
+    }
+
     uint256 uploadIndex = 0;
     mapping (uint256 => Follows) dj3nFollows;
 
