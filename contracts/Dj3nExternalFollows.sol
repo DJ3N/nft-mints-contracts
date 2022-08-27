@@ -21,8 +21,22 @@ contract D3jnExternalFollows is Ownable{
         uint256 currentFollowers;
     }
 
-    uint256 uploadIndex = 0;
     mapping (uint256 => Follows) dj3nFollows;
+
+    uint256 uploadIndex = 0;
+    address followManager;
+
+    function setFollowManager(address _newFollowManager)
+        external
+        onlyOwner
+    {
+        require(
+            followManager == address(0x0),
+            "Contract already set"
+        );
+        followManager = _newFollowManager;
+    }
+
 
     function addFollowers(bytes32 _root)
         external
