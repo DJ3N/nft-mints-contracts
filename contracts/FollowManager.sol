@@ -47,15 +47,21 @@ contract FollowManager is Ownable{
     )
         external
     {
+        bytes32 signaturePayload = getPayloadHash(address(this), _user);
+
         require(
-            VerifyFollowApproval(address(this), _user, _v, _r, _s),
+            VerifyMessage(signaturePayload, _v, _r, _s),
             "Dj3n is not approved to add followers for this user"
         );
 
         bytes32 leaf = keccak256(
             abi.encodePacked(
                 _user,
-                _creator
+                _creator,
+                signaturePayload,
+                _v,
+                _r,
+                _s
             )
         );
 
@@ -93,7 +99,7 @@ contract FollowManager is Ownable{
         return hash == root;
     }
 
-    function getPayloadHash(address _user, address _approved)
+    function getPayloadHash(address _approved, address _user )
         public
         pure
         returns (bytes32)
