@@ -93,10 +93,17 @@ contract FollowManager is Ownable{
         return hash == root;
     }
 
-    function VerifyFollowApproval(address _approved, address user, uint8 _v, bytes32 _r, bytes32 _s) public pure returns(bool){
-        bytes32 payloadHash = keccak256(abi.encodePacked("User Approves party to follow and unfollow on their behalf", user, _approved));
-        if(VerifyMessage(payloadHash, _v, _r, _s) == user) return true;
-        return false;
+    function getPayloadHash(address _user, address _approved)
+        public
+        pure
+        returns (bytes32)
+    {
+        return keccak256(abi.encodePacked("User Approves party to follow and unfollow on their behalf", _user, _approved));
+    }
+
+    function VerifyFollowApproval(address _approved, address _user, uint8 _v, bytes32 _r, bytes32 _s) public pure returns(bool){
+        bytes32 payloadHash = getPayloadHash(_user,_approved);
+        return VerifyMessage(payloadHash, _v, _r, _s) == _user;
     }
 
     function VerifyMessage(bytes32 _hashedMessage, uint8 _v, bytes32 _r, bytes32 _s) public pure returns (address) {
