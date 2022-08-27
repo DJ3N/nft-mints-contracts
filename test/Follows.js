@@ -111,11 +111,31 @@ describe("Market", function () {
             FollowManager.follow(bob.address)
         ).to.be.revertedWith("Already Following")
 
+        const creatorData = await FollowManager.Creators(bob.address);
+
+        console.log(creatorData);
+
+        const bobToOwner = await FollowManager.viewFollower(bob.address, 1);
+
+        console.log(bobToOwner);
+
+        expect(bobToOwner[0]).to.be.equal(owner.address) //Follower
+
+        expect(bobToOwner[1].toNumber()).to.be.greaterThan(1661566531)//timestamp of follow
+
+        const rank = await FollowManager.viewRankFollowers(bob.address, owner.address);
+
+        expect(rank.toString()).to.be.equal("1")
+
+        console.log(rank);
+
         await FollowManager.unfollow(bob.address, 1);
 
         await expect(
             FollowManager.unfollow(bob.address, 1)
         ).to.be.revertedWith("Invalid Creator/Index pairing")
+
+
     })
 
 });
