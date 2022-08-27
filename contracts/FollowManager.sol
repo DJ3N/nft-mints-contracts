@@ -19,7 +19,6 @@ contract FollowManager is Ownable{
 
     struct FanData{
         mapping (uint256 => address) following;
-        mapping (address => uint256) rankFollowing;
         uint256 lifetimeTotalFollowed;
     }
 
@@ -30,9 +29,13 @@ contract FollowManager is Ownable{
     function follow(address creator)
         external
     {
+        require(
+            Creators[creator].rankFollowers[msg.sender] == 0,
+            "Already Following"
+        );
+
         Fans[msg.sender].lifetimeTotalFollowed++;
         Fans[msg.sender].following[Fans[msg.sender].lifetimeTotalFollowed] = creator;
-        Fans[msg.sender].rankFollowing[creator] = Fans[msg.sender].lifetimeTotalFollowed;
 
         Creators[creator].lifetimeFollowers++;
         Creators[creator].currentFollowers++;
