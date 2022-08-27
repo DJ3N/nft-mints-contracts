@@ -1,6 +1,9 @@
 const { expect } = require('chai')
 const { ethers, upgrades } = require('hardhat')
 
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+
 describe("Market", function () {
     let owner, bob, alice
     let FollowManager, FollowManagerDeployer, D3jnExternalFollows, D3jnExternalFollowsDeployer
@@ -105,37 +108,69 @@ describe("Market", function () {
 
     it('Follow/Unfollow', async function () {
 
+        //Actions
+
         await FollowManager.follow(bob.address);
 
         await expect(
             FollowManager.follow(bob.address)
         ).to.be.revertedWith("Already Following")
 
-        const creatorData = await FollowManager.Creators(bob.address);
+        //Data Calls
+
+        let creatorData = await FollowManager.Creators(bob.address);
+
+        let rank = await FollowManager.viewRankFollowers(bob.address, owner.address);
+
+        let viewFollower = await FollowManager.viewFollower(bob.address, 1);
+
+        let viewFollowing = await FollowManager.viewFollowing(owner.address, "1");
+
+        //Data Checks
 
         expect(creatorData.lifetimeFollowers).to.be.equal("1")
 
         expect(creatorData.currentFollowers).to.be.equal("1")
 
-        const bobToOwner = await FollowManager.viewFollower(bob.address, 1);
+        expect(viewFollower[0]).to.be.equal(owner.address) //Follower
 
-        expect(bobToOwner[0]).to.be.equal(owner.address) //Follower
-
-        expect(bobToOwner[1].toNumber()).to.be.greaterThan(1661566531)//timestamp of follow
-
-        const rank = await FollowManager.viewRankFollowers(bob.address, owner.address);
+        expect(viewFollower[1].toNumber()).to.be.greaterThan(1661566531)//timestamp of follow
 
         expect(rank.toString()).to.be.equal("1")
 
-        const following = await FollowManager.viewFollowing(owner.address, "1")
+        expect(viewFollowing).to.be.equal(bob.address)
 
-        expect(following).to.be.equal(bob.address) //Following
+        //Actions
 
         await FollowManager.unfollow(bob.address, 1);
 
         await expect(
             FollowManager.unfollow(bob.address, 1)
         ).to.be.revertedWith("Invalid Creator/Index pairing")
+
+        //Data Calls
+
+        creatorData = await FollowManager.Creators(bob.address);
+
+        rank = await FollowManager.viewRankFollowers(bob.address, owner.address);
+
+        viewFollower = await FollowManager.viewFollower(bob.address, 1);
+
+        viewFollowing = await FollowManager.viewFollowing(owner.address, "1");
+
+        //Data Checks
+
+        expect(creatorData.lifetimeFollowers).to.be.equal("1")
+
+        expect(creatorData.currentFollowers).to.be.equal("0")
+
+        expect(viewFollower[0]).to.be.equal(ZERO_ADDRESS) //Follower
+
+        expect(viewFollower[1].toNumber()).to.be.lessThan(1)//timestamp of follow
+
+        expect(rank.toString()).to.be.equal("0")
+
+        expect(viewFollowing).to.be.equal(ZERO_ADDRESS)
 
 
     })
