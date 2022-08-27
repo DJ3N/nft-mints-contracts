@@ -1,3 +1,5 @@
+const {ethers} = require("hardhat");
+
 async function main() {
     const [deployer] = await ethers.getSigners();
 
@@ -5,10 +7,15 @@ async function main() {
 
     console.log("Account balance:", (await deployer.getBalance()).toString());
 
-    const factory = await ethers.getContractFactory("NftFactory");
-    const result = await factory.deploy();
+    const NftFactoryDeployer = await ethers.getContractFactory("NftFactory");
+    const NftFactory = await NftFactoryDeployer.deploy();
 
-    console.log("Contract address:", result.address);
+    const MarketPlaceDeployer = await ethers.getContractFactory('SimpleMarketPlace')
+
+    const MarketPlace = await MarketPlaceDeployer.deploy(ethers.utils.parseEther("1.05"), "0x0000000000000000000000000000000000000000")
+
+    console.log("NftFactory address:", NftFactory.address);
+    console.log("MarketPlace address:", MarketPlace.address);
 }
 
 main()
