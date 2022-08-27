@@ -22,44 +22,67 @@ contract FollowManager is Ownable{
         uint256 lifetimeTotalFollowed;
     }
 
-    mapping (address => CreatorData) Creators;
-    mapping (address => FanData) Fans;
+    mapping (address => CreatorData) public Creators;
+    mapping (address => FanData) public Fans;
 
+    function viewFollower(address _creator, uint256 index)
+        external
+        view
+        returns(address, uint256)
+    {
+        return (Creators[_creator].followers[index].managerContract, Creators[_creator].followers[index].followedAtTimestamp);
+    }
 
-    function follow(address creator)
+    function viewRankFollowers(address _creator, address _fan)
+        external
+        view
+        returns(uint256)
+    {
+        return Creators[_creator].rankFollowers[_fan];
+    }
+
+    function viewFollowing(address _fan, uint256 _index)
+        external
+        view
+        returns(address)
+    {
+        return Fans[_fan].following[_index];
+    }
+
+    function follow(address _creator)
         external
     {
         require(
-            Creators[creator].rankFollowers[msg.sender] == 0,
+            Creators[_creator].rankFollowers[msg.sender] == 0,
             "Already Following"
         );
 
         Fans[msg.sender].lifetimeTotalFollowed++;
-        Fans[msg.sender].following[Fans[msg.sender].lifetimeTotalFollowed] = creator;
+        Fans[msg.sender].following[Fans[msg.sender].lifetimeTotalFollowed] = _creator;
 
-        Creators[creator].lifetimeFollowers++;
-        Creators[creator].currentFollowers++;
-        Creators[creator].followers[Creators[creator].lifetimeFollowers] = Follower({
+        Creators[_creator].lifetimeFollowers++;
+        Creators[_creator].currentFollowers++;
+        Creators[_creator].followers[Creators[_creator].lifetimeFollowers] = Follower({
             managerContract: msg.sender,
             followedAtTimestamp: block.timestamp
         });
-        Creators[creator].rankFollowers[msg.sender] = Creators[creator].lifetimeFollowers;
+        Creators[_creator].rankFollowers[msg.sender] = Creators[_creator].lifetimeFollowers;
 
     }
 
-    function unfollow(address creator, uint256 index)
+    function unfollow(address _creator, uint256 _index)
         external
     {
         require(
-            Fans[msg.sender].following[index] == creator,
+            Fans[msg.sender].following[_index] == _creator,
             "Invalid Creator/Index pairing"
         );
 
-        delete Fans[msg.sender].following[index];
-        Creators[creator].currentFollowers--;
-        uint256 fanIndex = Creators[creator].rankFollowers[msg.sender];
-        delete Creators[creator].followers[fanIndex];
-        delete Creators[creator].rankFollowers[msg.sender];
+        delete Fans[msg.sender].following[_index];
+        Creators[_creator].currentFollowers--;
+        uint256 fanIndex = Creators[_creator].rankFollowers[msg.sender];
+        delete Creators[_creator].followers[fanIndex];
+        delete Creators[_creator].rankFollowers[msg.sender];
     }
 
 }
