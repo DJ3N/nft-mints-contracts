@@ -5,11 +5,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract FollowManager is Ownable{
 
-    struct Follows{
-        bytes32 root;
-        uint256 timestamp;
-    }
-
     struct Follower{
         address managerContract;
         uint256 followedAtTimestamp;
@@ -17,106 +12,36 @@ contract FollowManager is Ownable{
 
     struct CreatorData{
         mapping (uint256 => Follower) followers;
+        mapping (address => uint256) rankFollowers;
         uint256 lifetimeFollowers;
         uint256 currentFollowers;
     }
 
-    uint256 uploadIndex = 0;
-    mapping (uint256 => Follows) dj3nFollows;
+    struct FanData{
+        mapping (uint256 => address) following;
+        mapping (address => uint256) rankFollowing;
+        uint256 lifetimeTotalFollowed;
+    }
 
-    function addFollowers(bytes32 _root)
+    mapping (address => CreatorData) Creators;
+    mapping (address => FanData) Fans;
+
+
+    function follow(address creator)
         external
-        onlyOwner
     {
-        dj3nFollows[uploadIndex] = Follows({
-            root: _root,
-            timestamp: block.timestamp
+        Fans[msg.sender].lifetimeTotalFollowed++;
+        Fans[msg.sender].following[Fans[msg.sender].lifetimeTotalFollowed] = creator;
+        Fans[msg.sender].rankFollowing[creator] = Fans[msg.sender].lifetimeTotalFollowed;
+
+        Creators[creator].lifetimeFollowers++;
+        Creators[creator].currentFollowers++;
+        Creators[creator].followers[Creators[creator].lifetimeFollowers] = Follower({
+            managerContract: msg.sender,
+            followedAtTimestamp: block.timestamp
         });
-        uploadIndex++;
-    }
+        Creators[creator].rankFollowers[msg.sender] = Creators[creator].lifetimeFollowers;
 
-    function claimFollow(
-        address _user,
-        address _creator,
-        uint8 _v,
-        bytes32 _r,
-        bytes32 _s,
-        bytes32[] memory _proof,
-        uint256 _rootIndex,
-        uint256 _index
-    )
-        external
-    {
-        bytes32 signaturePayload = getPayloadHash(address(this), _user);
-
-        require(
-            VerifyMessage(signaturePayload, _v, _r, _s) == _user, //We save some computations if we do this directly instead of calling VerifyFollowApproval
-            "Dj3n is not approved to add followers for this user"
-        );
-
-        bytes32 leaf = keccak256(
-            abi.encodePacked(
-                _user,
-                _creator,
-                signaturePayload,
-                _v,
-                _r,
-                _s
-            )
-        );
-
-        require(
-            VerifyMerkleTree(
-                _proof,
-                dj3nFollows[_rootIndex].root,
-                leaf,
-                _index
-            ),
-            "Invalid Proof"
-        );
-    }
-
-    function VerifyMerkleTree(
-        bytes32[] memory proof,
-        bytes32 root,
-        bytes32 leaf,
-        uint index
-    ) public pure returns (bool) {
-        bytes32 hash = leaf;
-
-        for (uint i = 0; i < proof.length; i++) {
-            bytes32 proofElement = proof[i];
-
-            if (index % 2 == 0) {
-                hash = keccak256(abi.encodePacked(hash, proofElement));
-            } else {
-                hash = keccak256(abi.encodePacked(proofElement, hash));
-            }
-
-            index = index / 2;
-        }
-
-        return hash == root;
-    }
-
-    function getPayloadHash(address _approved, address _user )
-        public
-        pure
-        returns (bytes32)
-    {
-        return keccak256(abi.encodePacked("User Approves party to follow and unfollow on their behalf", _user, _approved));
-    }
-
-    function VerifyFollowApproval(address _approved, address _user, uint8 _v, bytes32 _r, bytes32 _s) public pure returns(bool){
-        bytes32 payloadHash = getPayloadHash(_user,_approved);
-        return VerifyMessage(payloadHash, _v, _r, _s) == _user;
-    }
-
-    function VerifyMessage(bytes32 _hashedMessage, uint8 _v, bytes32 _r, bytes32 _s) public pure returns (address) {
-        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
-        bytes32 prefixedHashMessage = keccak256(abi.encodePacked(prefix, _hashedMessage));
-        address signer = ecrecover(prefixedHashMessage, _v, _r, _s);
-        return signer;
     }
 
 }
