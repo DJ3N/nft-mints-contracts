@@ -50,7 +50,7 @@ contract FollowManager is Ownable{
         bytes32 signaturePayload = getPayloadHash(address(this), _user);
 
         require(
-            VerifyMessage(signaturePayload, _v, _r, _s),
+            VerifyMessage(signaturePayload, _v, _r, _s) == _user, //We save some computations if we do this directly instead of calling VerifyFollowApproval
             "Dj3n is not approved to add followers for this user"
         );
 
