@@ -11,7 +11,6 @@ async function main() {
     const NftFactory = await NftFactoryDeployer.deploy();
 
     const MarketPlaceDeployer = await ethers.getContractFactory('SimpleMarketPlace')
-
     const MarketPlace = await MarketPlaceDeployer.deploy(ethers.utils.parseEther("1.05"), "0x0000000000000000000000000000000000000000")
 
     console.log("NftFactory address:", NftFactory.address);
