@@ -107,7 +107,15 @@ describe("Market", function () {
 
         await FollowManager.follow(bob.address);
 
+        await expect(
+            FollowManager.follow(bob.address)
+        ).to.be.revertedWith("Already Following")
+
         await FollowManager.unfollow(bob.address, 1);
+
+        await expect(
+            FollowManager.unfollow(bob.address, 1)
+        ).to.be.revertedWith("Invalid Creator/Index pairing")
     })
 
 });
