@@ -5,6 +5,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract FollowManager is Ownable{
 
+    //State
+
     struct Follower{
         address managerContract;
         uint256 followedAtTimestamp;
@@ -24,6 +26,10 @@ contract FollowManager is Ownable{
 
     mapping (address => CreatorData) public Creators;
     mapping (address => FanData) public Fans;
+
+    address d3jnExternalFollows;
+
+    //View Functions
 
     function viewFollower(address _creator, uint256 index)
         external
@@ -48,6 +54,8 @@ contract FollowManager is Ownable{
     {
         return Fans[_fan].following[_index];
     }
+
+    //Mutative Functions
 
     function follow(address _creator)
         external
@@ -83,6 +91,17 @@ contract FollowManager is Ownable{
         uint256 fanIndex = Creators[_creator].rankFollowers[msg.sender];
         delete Creators[_creator].followers[fanIndex];
         delete Creators[_creator].rankFollowers[msg.sender];
+    }
+
+    function setDj3nExternalFollows(address _newD3jnExternal)
+        external
+        onlyOwner
+    {
+        require(
+            d3jnExternalFollows == address(0x0),
+            "Contract already set"
+        );
+        d3jnExternalFollows = _newD3jnExternal;
     }
 
 }
