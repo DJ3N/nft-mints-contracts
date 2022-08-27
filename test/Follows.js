@@ -113,11 +113,11 @@ describe("Market", function () {
 
         const creatorData = await FollowManager.Creators(bob.address);
 
-        console.log(creatorData);
+        expect(creatorData.lifetimeFollowers).to.be.equal("1")
+
+        expect(creatorData.currentFollowers).to.be.equal("1")
 
         const bobToOwner = await FollowManager.viewFollower(bob.address, 1);
-
-        console.log(bobToOwner);
 
         expect(bobToOwner[0]).to.be.equal(owner.address) //Follower
 
@@ -127,7 +127,9 @@ describe("Market", function () {
 
         expect(rank.toString()).to.be.equal("1")
 
-        console.log(rank);
+        const following = await FollowManager.viewFollowing(owner.address, "1")
+
+        expect(following).to.be.equal(bob.address) //Following
 
         await FollowManager.unfollow(bob.address, 1);
 
