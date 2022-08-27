@@ -47,4 +47,19 @@ contract FollowManager is Ownable{
 
     }
 
+    function unfollow(address creator, uint256 index)
+        external
+    {
+        require(
+            Fans[msg.sender].following[index] == creator,
+            "Invalid Creator/Index pairing"
+        );
+
+        delete Fans[msg.sender].following[index];
+        Creators[creator].currentFollowers--;
+        uint256 fanIndex = Creators[creator].rankFollowers[msg.sender];
+        delete Creators[creator].followers[fanIndex];
+        delete Creators[creator].rankFollowers[msg.sender];
+    }
+
 }
