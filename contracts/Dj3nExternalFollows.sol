@@ -45,7 +45,7 @@ contract D3jnExternalFollows is Ownable{
         uint256 _rootIndex,
         uint256 _index
     )
-    external
+        external
     {
         bytes32 signaturePayload = getPayloadHash(address(this), _user);
 
