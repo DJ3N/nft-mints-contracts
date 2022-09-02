@@ -171,8 +171,84 @@ describe("Market", function () {
         expect(rank.toString()).to.be.equal("0")
 
         expect(viewFollowing).to.be.equal(ZERO_ADDRESS)
-
-
     })
+
+    it('Multi Party Follows', async function () {
+        //Actions
+
+        await FollowManager.follow(bob.address);
+
+        await FollowManager.connect(alice).follow(bob.address);
+
+        await expect(
+            FollowManager.connect(alice).follow(bob.address)
+        ).to.be.revertedWith("Already Following")
+
+        //Data Calls
+
+        let creatorData = await FollowManager.Creators(bob.address);
+
+        let rank = await FollowManager.viewRankFollowers(bob.address, owner.address);
+
+        let viewFollower = await FollowManager.viewFollower(bob.address, "2");
+
+        let viewFollowing = await FollowManager.viewFollowing(alice.address, "1");
+
+        //Data Checks
+
+        expect(creatorData.lifetimeFollowers).to.be.equal("2")
+
+        expect(creatorData.currentFollowers).to.be.equal("2")
+
+        expect(viewFollower[0]).to.be.equal(alice.address) //Follower
+
+        expect(viewFollower[1].toNumber()).to.be.greaterThan(1661566531)//timestamp of follow
+
+        expect(rank.toString()).to.be.equal("1")
+
+        expect(viewFollowing).to.be.equal(bob.address)
+
+        //Actions
+
+        await expect(
+            FollowManager.connect(alice).unfollow(owner.address, 1)
+        ).to.be.revertedWith("Invalid Creator/Index pairing")
+
+        await expect(
+            FollowManager.connect(alice).unfollow(bob.address, 2)
+        ).to.be.revertedWith("Invalid Creator/Index pairing")
+
+        await FollowManager.connect(alice).unfollow(bob.address, 1);
+
+        await expect(
+            FollowManager.connect(alice).unfollow(bob.address, 1)
+        ).to.be.revertedWith("Invalid Creator/Index pairing")
+
+        //Data Calls
+
+        creatorData = await FollowManager.Creators(bob.address);
+
+        rank = await FollowManager.viewRankFollowers(bob.address, alice.address);
+
+        viewFollower = await FollowManager.viewFollower(bob.address, 1);
+
+        viewFollowing = await FollowManager.viewFollowing(alice.address, "1");
+
+        //Data Checks
+
+        expect(creatorData.lifetimeFollowers).to.be.equal("2")
+
+        expect(creatorData.currentFollowers).to.be.equal("1")
+
+        expect(viewFollower[0]).to.be.equal(owner.address) //Follower
+
+        expect(viewFollower[1].toNumber()).to.be.greaterThan(1661566531)//timestamp of follow
+
+        expect(rank.toString()).to.be.equal("0")
+
+        expect(viewFollowing).to.be.equal(ZERO_ADDRESS)
+    });
+
+
 
 });
